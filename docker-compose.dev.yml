@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  grok-sdr-backend:
+    build: .
+    container_name: grok-sdr-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - XAI_API_KEY=${XAI_API_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    restart: unless-stopped
+    networks:
+      - grok-sdr-network
+
+  grok-sdr-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: grok-sdr-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/api
+    depends_on:
+      - grok-sdr-backend
+    networks:
+      - grok-sdr-network
+
+networks:
+  grok-sdr-network:
+    driver: bridge
