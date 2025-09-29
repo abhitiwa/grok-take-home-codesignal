@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * Configuration properties for Grok API integration.
  * 
  * These properties are loaded from application.yml and can be overridden
- * via environment variables for different deployment env
+ * via environment variables for different deployment environments.
  */
 @Data
 @Configuration
