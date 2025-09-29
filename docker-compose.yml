@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  grok-sdr-system:
+    build: .
+    container_name: grok-sdr-system
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - XAI_API_KEY=${XAI_API_KEY}
+      - GROK_API_BASE_URL=https://api.x.ai/v1
+      - GROK_API_MODEL=grok-4
+      - GROK_API_TEMPERATURE=0.7
+      - GROK_API_MAX_TOKENS=1000
+      - GROK_API_TIMEOUT=30000
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/evaluation/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - grok-sdr-network
+
+  # Optional: Add a reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    container_name: grok-sdr-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - grok-sdr-system
+    restart: unless-stopped
+    networks:
+      - grok-sdr-network
+
+networks:
+  grok-sdr-network:
+    driver: bridge
+
+volumes:
+  grok-sdr-data:
+    driver: local
