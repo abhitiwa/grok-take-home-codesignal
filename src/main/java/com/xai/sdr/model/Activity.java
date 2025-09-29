@@ -1,10 +1,5 @@
 package com.xai.sdr.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,10 +13,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "activities")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Activity {
     
     @Id
@@ -60,6 +51,8 @@ public class Activity {
     @Column(name = "created_by")
     private String createdBy;
     
+    public Activity() {}
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -67,4 +60,35 @@ public class Activity {
             completedDate = LocalDateTime.now();
         }
     }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public Lead getLead() { return lead; }
+    public void setLead(Lead lead) { this.lead = lead; }
+    
+    public ActivityType getActivityType() { return activityType; }
+    public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
+    
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    
+    public String getOutcome() { return outcome; }
+    public void setOutcome(String outcome) { this.outcome = outcome; }
+    
+    public String getNextSteps() { return nextSteps; }
+    public void setNextSteps(String nextSteps) { this.nextSteps = nextSteps; }
+    
+    public LocalDateTime getScheduledDate() { return scheduledDate; }
+    public void setScheduledDate(LocalDateTime scheduledDate) { this.scheduledDate = scheduledDate; }
+    
+    public LocalDateTime getCompletedDate() { return completedDate; }
+    public void setCompletedDate(LocalDateTime completedDate) { this.completedDate = completedDate; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }

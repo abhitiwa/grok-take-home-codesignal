@@ -1,14 +1,8 @@
 package com.xai.sdr.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +15,6 @@ import java.util.List;
  */
 @Entity
 @Table(name = "leads")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Lead {
     
     @Id
@@ -96,6 +86,8 @@ public class Lead {
     @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities = new ArrayList<>();
     
+    public Lead() {}
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -113,4 +105,68 @@ public class Lead {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
+    
+    public String getCompanySize() { return companySize; }
+    public void setCompanySize(String companySize) { this.companySize = companySize; }
+    
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
+    
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    
+    public String getLinkedinUrl() { return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
+    
+    public String getWebsite() { return website; }
+    public void setWebsite(String website) { this.website = website; }
+    
+    public Integer getQualificationScore() { return qualificationScore; }
+    public void setQualificationScore(Integer qualificationScore) { this.qualificationScore = qualificationScore; }
+    
+    public String getQualificationReasoning() { return qualificationReasoning; }
+    public void setQualificationReasoning(String qualificationReasoning) { this.qualificationReasoning = qualificationReasoning; }
+    
+    public PipelineStage getPipelineStage() { return pipelineStage; }
+    public void setPipelineStage(PipelineStage pipelineStage) { this.pipelineStage = pipelineStage; }
+    
+    public LocalDateTime getLastContactDate() { return lastContactDate; }
+    public void setLastContactDate(LocalDateTime lastContactDate) { this.lastContactDate = lastContactDate; }
+    
+    public LocalDateTime getNextFollowUpDate() { return nextFollowUpDate; }
+    public void setNextFollowUpDate(LocalDateTime nextFollowUpDate) { this.nextFollowUpDate = nextFollowUpDate; }
+    
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    public List<Activity> getActivities() { return activities; }
+    public void setActivities(List<Activity> activities) { this.activities = activities; }
 }
