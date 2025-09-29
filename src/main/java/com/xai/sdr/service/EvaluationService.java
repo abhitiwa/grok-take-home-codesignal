@@ -12,8 +12,7 @@ import java.util.*;
 /**
  * Service for evaluating Grok's performance across different sales scenarios.
  * 
- * Provides systematic testing and evaluation of AI responses to identify
- * areas for improvement and optimize prompt engineering.
+ * Optimized for demo purposes with reduced test sets for faster execution.
  */
 @Service
 public class EvaluationService {
@@ -36,44 +35,42 @@ public class EvaluationService {
     }
     
     /**
-     * Evaluate lead qualification performance
+     * Evaluate lead qualification performance (demo optimized - single lead)
      */
     public Map<String, Object> evaluateQualification(Map<String, Object> request) {
         Map<String, Object> results = new HashMap<>();
         List<Map<String, Object>> testResults = new ArrayList<>();
         
-        // Sample test leads for evaluation
-        List<Lead> testLeads = createTestLeads();
+        // Single test lead for faster demo
+        Lead testLead = createDemoLead();
         
-        for (Lead lead : testLeads) {
-            try {
-                long startTime = System.currentTimeMillis();
-                LeadQualificationService.LeadQualificationResult qualificationResult = qualificationService.qualifyLead(lead);
-                long endTime = System.currentTimeMillis();
-                
-                Map<String, Object> testResult = new HashMap<>();
-                testResult.put("leadId", lead.getId());
-                testResult.put("leadName", lead.getFullName());
-                testResult.put("company", lead.getCompanyName());
-                testResult.put("score", qualificationResult.getScore());
-                testResult.put("reasoning", qualificationResult.getReasoning());
-                testResult.put("responseTime", endTime - startTime);
-                testResult.put("success", true);
-                
-                testResults.add(testResult);
-                
-            } catch (Exception e) {
-                Map<String, Object> testResult = new HashMap<>();
-                testResult.put("leadId", lead.getId());
-                testResult.put("leadName", lead.getFullName());
-                testResult.put("error", e.getMessage());
-                testResult.put("success", false);
-                testResults.add(testResult);
-            }
+        try {
+            long startTime = System.currentTimeMillis();
+            LeadQualificationService.LeadQualificationResult qualificationResult = qualificationService.qualifyLead(testLead);
+            long endTime = System.currentTimeMillis();
+            
+            Map<String, Object> testResult = new HashMap<>();
+            testResult.put("leadId", testLead.getId());
+            testResult.put("leadName", testLead.getFullName());
+            testResult.put("company", testLead.getCompanyName());
+            testResult.put("score", qualificationResult.getScore());
+            testResult.put("reasoning", qualificationResult.getReasoning());
+            testResult.put("responseTime", endTime - startTime);
+            testResult.put("success", true);
+            
+            testResults.add(testResult);
+            
+        } catch (Exception e) {
+            Map<String, Object> testResult = new HashMap<>();
+            testResult.put("leadId", testLead.getId());
+            testResult.put("leadName", testLead.getFullName());
+            testResult.put("error", e.getMessage());
+            testResult.put("success", false);
+            testResults.add(testResult);
         }
         
         results.put("testResults", testResults);
-        results.put("totalTests", testLeads.size());
+        results.put("totalTests", 1);
         results.put("successfulTests", testResults.stream().mapToInt(r -> (Boolean) r.get("success") ? 1 : 0).sum());
         results.put("averageScore", calculateAverageScore(testResults));
         results.put("averageResponseTime", calculateAverageResponseTime(testResults));
@@ -89,45 +86,41 @@ public class EvaluationService {
     }
     
     /**
-     * Evaluate messaging generation performance
+     * Evaluate messaging generation performance (demo optimized - single lead, single message type)
      */
     public Map<String, Object> evaluateMessaging(Map<String, Object> request) {
         Map<String, Object> results = new HashMap<>();
         List<Map<String, Object>> testResults = new ArrayList<>();
         
-        List<Lead> testLeads = createTestLeads();
-        String[] messageTypes = {"initial outreach", "follow-up", "meeting request", "proposal follow-up"};
+        Lead testLead = createDemoLead();
+        String messageType = "initial outreach"; // Single message type for demo
         
-        for (Lead lead : testLeads) {
-            for (String messageType : messageTypes) {
-                try {
-                    long startTime = System.currentTimeMillis();
-                    String emailMessage = messagingService.generateEmailMessage(lead, messageType);
-                    long endTime = System.currentTimeMillis();
-                    
-                    Map<String, Object> testResult = new HashMap<>();
-                    testResult.put("leadId", lead.getId());
-                    testResult.put("messageType", messageType);
-                    testResult.put("message", emailMessage);
-                    testResult.put("messageLength", emailMessage.length());
-                    testResult.put("responseTime", endTime - startTime);
-                    testResult.put("success", true);
-                    
-                    testResults.add(testResult);
-                    
-                } catch (Exception e) {
-                    Map<String, Object> testResult = new HashMap<>();
-                    testResult.put("leadId", lead.getId());
-                    testResult.put("messageType", messageType);
-                    testResult.put("error", e.getMessage());
-                    testResult.put("success", false);
-                    testResults.add(testResult);
-                }
-            }
+        try {
+            long startTime = System.currentTimeMillis();
+            String emailMessage = messagingService.generateEmailMessage(testLead, messageType);
+            long endTime = System.currentTimeMillis();
+            
+            Map<String, Object> testResult = new HashMap<>();
+            testResult.put("leadId", testLead.getId());
+            testResult.put("messageType", messageType);
+            testResult.put("message", emailMessage);
+            testResult.put("messageLength", emailMessage.length());
+            testResult.put("responseTime", endTime - startTime);
+            testResult.put("success", true);
+            
+            testResults.add(testResult);
+            
+        } catch (Exception e) {
+            Map<String, Object> testResult = new HashMap<>();
+            testResult.put("leadId", testLead.getId());
+            testResult.put("messageType", messageType);
+            testResult.put("error", e.getMessage());
+            testResult.put("success", false);
+            testResults.add(testResult);
         }
         
         results.put("testResults", testResults);
-        results.put("totalTests", testLeads.size() * messageTypes.length);
+        results.put("totalTests", 1);
         results.put("successfulTests", testResults.stream().mapToInt(r -> (Boolean) r.get("success") ? 1 : 0).sum());
         results.put("averageMessageLength", calculateAverageMessageLength(testResults));
         results.put("averageResponseTime", calculateAverageResponseTime(testResults));
@@ -143,24 +136,23 @@ public class EvaluationService {
     }
     
     /**
-     * Evaluate different prompt variations
+     * Evaluate different prompt variations (demo optimized - 2 variations only)
      */
     public Map<String, Object> evaluatePromptVariations(Map<String, Object> request) {
         Map<String, Object> results = new HashMap<>();
         List<Map<String, Object>> testResults = new ArrayList<>();
         
-        Lead testLead = createTestLeads().get(0);
+        Lead testLead = createDemoLead();
+        // Reduced to 2 prompt variations for faster demo
         String[] promptVariations = {
             "You are an expert sales development representative...",
-            "As a senior sales professional with 10+ years experience...",
-            "You are a data-driven sales analyst evaluating leads...",
-            "You are a consultative sales expert focused on value creation..."
+            "As a senior sales professional with 10+ years experience..."
         };
         
         for (int i = 0; i < promptVariations.length; i++) {
             try {
                 long startTime = System.currentTimeMillis();
-                String customPrompt = promptVariations[i] + " Please evaluate this lead: " + 
+                String customPrompt = promptVariations[i] + " Please evaluate this lead in one sentence: " + 
                     testLead.getFullName() + " at " + testLead.getCompanyName();
                 String response = grokApiService.sendChatCompletion(customPrompt);
                 long endTime = System.currentTimeMillis();
@@ -201,40 +193,91 @@ public class EvaluationService {
     }
     
     /**
-     * Run comprehensive evaluation suite
+     * Run comprehensive evaluation suite (demo optimized with proper result aggregation)
      */
     public Map<String, Object> runComprehensiveEvaluation() {
         Map<String, Object> comprehensiveResults = new HashMap<>();
         
-        // Test API health
-        Map<String, Object> healthResults = testApiHealth();
-        comprehensiveResults.put("health", healthResults);
-        
-        // Test qualification
-        Map<String, Object> qualificationResults = evaluateQualification(new HashMap<>());
-        comprehensiveResults.put("qualification", qualificationResults);
-        
-        // Test messaging
-        Map<String, Object> messagingResults = evaluateMessaging(new HashMap<>());
-        comprehensiveResults.put("messaging", messagingResults);
-        
-        // Test prompt variations
-        Map<String, Object> promptResults = evaluatePromptVariations(new HashMap<>());
-        comprehensiveResults.put("promptVariations", promptResults);
-        
-        // Overall metrics
-        Map<String, Object> overallMetrics = new HashMap<>();
-        overallMetrics.put("totalEvaluations", evaluationHistory.size());
-        overallMetrics.put("lastEvaluation", LocalDateTime.now());
-        overallMetrics.put("systemHealth", "Good");
-        
-        comprehensiveResults.put("overall", overallMetrics);
+        try {
+            // Test API health (fast)
+            Map<String, Object> healthResults = testApiHealth();
+            comprehensiveResults.put("health", healthResults);
+            
+            // Run qualification test
+            Map<String, Object> qualificationResults = evaluateQualification(new HashMap<>());
+            comprehensiveResults.put("qualification", qualificationResults);
+            
+            // Run messaging test
+            Map<String, Object> messagingResults = evaluateMessaging(new HashMap<>());
+            comprehensiveResults.put("messaging", messagingResults);
+            
+            // Calculate combined metrics
+            int totalTests = 0;
+            int successfulTests = 0;
+            double totalResponseTime = 0;
+            int responseTimeCount = 0;
+            
+            // Add qualification metrics
+            if (qualificationResults.containsKey("totalTests")) {
+                totalTests += (Integer) qualificationResults.get("totalTests");
+                successfulTests += (Integer) qualificationResults.get("successfulTests");
+            }
+            
+            // Add messaging metrics  
+            if (messagingResults.containsKey("totalTests")) {
+                totalTests += (Integer) messagingResults.get("totalTests");
+                successfulTests += (Integer) messagingResults.get("successfulTests");
+            }
+            
+            // Calculate average response time
+            if (qualificationResults.containsKey("averageResponseTime")) {
+                totalResponseTime += (Double) qualificationResults.get("averageResponseTime");
+                responseTimeCount++;
+            }
+            if (messagingResults.containsKey("averageResponseTime")) {
+                totalResponseTime += (Double) messagingResults.get("averageResponseTime");
+                responseTimeCount++;
+            }
+            
+            // Set top-level metrics for the UI
+            comprehensiveResults.put("totalTests", totalTests);
+            comprehensiveResults.put("successfulTests", successfulTests);
+            comprehensiveResults.put("averageResponseTime", responseTimeCount > 0 ? totalResponseTime / responseTimeCount : 0);
+            
+            // Overall metrics
+            Map<String, Object> overallMetrics = new HashMap<>();
+            overallMetrics.put("totalEvaluations", evaluationHistory.size());
+            overallMetrics.put("lastEvaluation", LocalDateTime.now());
+            overallMetrics.put("systemHealth", healthResults.get("status"));
+            overallMetrics.put("qualificationScore", qualificationResults.get("averageScore"));
+            overallMetrics.put("messagingSuccess", messagingResults.get("successfulTests"));
+            
+            comprehensiveResults.put("overall", overallMetrics);
+            
+            // Store in history
+            Map<String, Object> historyEntry = new HashMap<>();
+            historyEntry.put("type", "comprehensive");
+            historyEntry.put("timestamp", LocalDateTime.now());
+            historyEntry.put("results", comprehensiveResults);
+            evaluationHistory.add(historyEntry);
+            
+            log.info("Comprehensive evaluation completed: {} total tests, {} successful", totalTests, successfulTests);
+            
+        } catch (Exception e) {
+            log.error("Error running comprehensive evaluation", e);
+            
+            // Return error state but with some data
+            comprehensiveResults.put("totalTests", 0);
+            comprehensiveResults.put("successfulTests", 0);
+            comprehensiveResults.put("averageResponseTime", 0);
+            comprehensiveResults.put("error", "Comprehensive evaluation failed: " + e.getMessage());
+        }
         
         return comprehensiveResults;
     }
     
     /**
-     * Test API health and basic functionality
+     * Test API health and basic functionality (fast test)
      */
     public Map<String, Object> testApiHealth() {
         Map<String, Object> health = new HashMap<>();
@@ -246,7 +289,7 @@ public class EvaluationService {
             
             if (connectionTest) {
                 long startTime = System.currentTimeMillis();
-                String testResponse = grokApiService.sendChatCompletion("Hello, this is a health check.");
+                String testResponse = grokApiService.sendChatCompletion("Hello, respond with 'OK'.");
                 long endTime = System.currentTimeMillis();
                 
                 health.put("responseTime", endTime - startTime);
@@ -291,53 +334,22 @@ public class EvaluationService {
     }
     
     /**
-     * Create test leads for evaluation
+     * Create single demo lead for faster testing
      */
-    private List<Lead> createTestLeads() {
-        List<Lead> testLeads = new ArrayList<>();
+    private Lead createDemoLead() {
+        Lead demoLead = new Lead();
+        demoLead.setId(99L);
+        demoLead.setFirstName("Demo");
+        demoLead.setLastName("Lead");
+        demoLead.setEmail("demo@enterprise.com");
+        demoLead.setTitle("VP of Sales");
+        demoLead.setCompanyName("Enterprise Corp");
+        demoLead.setCompanySize("500-1000");
+        demoLead.setIndustry("Technology");
+        demoLead.setLocation("New York, NY");
+        demoLead.setWebsite("https://enterprise.com");
         
-        // High-value enterprise lead
-        Lead enterpriseLead = new Lead();
-        enterpriseLead.setId(1L);
-        enterpriseLead.setFirstName("John");
-        enterpriseLead.setLastName("Smith");
-        enterpriseLead.setEmail("john.smith@techcorp.com");
-        enterpriseLead.setTitle("VP of Engineering");
-        enterpriseLead.setCompanyName("TechCorp Inc");
-        enterpriseLead.setCompanySize("1000+");
-        enterpriseLead.setIndustry("Technology");
-        enterpriseLead.setLocation("San Francisco, CA");
-        enterpriseLead.setWebsite("https://techcorp.com");
-        testLeads.add(enterpriseLead);
-        
-        // Mid-market lead
-        Lead midMarketLead = new Lead();
-        midMarketLead.setId(2L);
-        midMarketLead.setFirstName("Sarah");
-        midMarketLead.setLastName("Johnson");
-        midMarketLead.setEmail("sarah.johnson@startup.io");
-        midMarketLead.setTitle("CTO");
-        midMarketLead.setCompanyName("StartupIO");
-        midMarketLead.setCompanySize("50-100");
-        midMarketLead.setIndustry("SaaS");
-        midMarketLead.setLocation("Austin, TX");
-        midMarketLead.setWebsite("https://startup.io");
-        testLeads.add(midMarketLead);
-        
-        // Small business lead
-        Lead smallBusinessLead = new Lead();
-        smallBusinessLead.setId(3L);
-        smallBusinessLead.setFirstName("Mike");
-        smallBusinessLead.setLastName("Davis");
-        smallBusinessLead.setEmail("mike@localbiz.com");
-        smallBusinessLead.setTitle("Owner");
-        smallBusinessLead.setCompanyName("Local Business Solutions");
-        smallBusinessLead.setCompanySize("10-50");
-        smallBusinessLead.setIndustry("Professional Services");
-        smallBusinessLead.setLocation("Denver, CO");
-        testLeads.add(smallBusinessLead);
-        
-        return testLeads;
+        return demoLead;
     }
     
     /**

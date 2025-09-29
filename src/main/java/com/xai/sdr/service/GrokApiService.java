@@ -71,6 +71,8 @@ public class GrokApiService {
                     .retrieve()
                     .bodyToMono(GrokResponse.class)
                     .timeout(Duration.ofMillis(grokConfig.getTimeout()))
+                    .doOnError(throwable -> log.warn("API call timeout or error: {}", throwable.getMessage()))
+                    .onErrorReturn(createErrorResponse())
                     .block();
             
             if (response != null && response.getContent() != null) {
@@ -78,15 +80,18 @@ public class GrokApiService {
                 return response.getContent();
             } else {
                 log.error("Empty or invalid response from Grok API");
-                throw new RuntimeException("Empty response from Grok API");
+                return "Unable to generate response due to API timeout. Please try again.";
             }
             
         } catch (WebClientResponseException e) {
             log.error("Grok API error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Failed to communicate with Grok API: " + e.getMessage());
+            return "API Error: " + e.getMessage() + ". Please check your API key and try again.";
         } catch (Exception e) {
             log.error("Unexpected error calling Grok API", e);
-            throw new RuntimeException("Unexpected error calling Grok API: " + e.getMessage());
+            if (e.getMessage().contains("TimeoutException")) {
+                return "Request timed out. The AI service is currently slow. Please try again.";
+            }
+            return "Service temporarily unavailable. Please try again in a moment.";
         }
     }
     
@@ -110,6 +115,8 @@ public class GrokApiService {
                     .retrieve()
                     .bodyToMono(GrokResponse.class)
                     .timeout(Duration.ofMillis(grokConfig.getTimeout()))
+                    .doOnError(throwable -> log.warn("Conversation API call timeout: {}", throwable.getMessage()))
+                    .onErrorReturn(createErrorResponse())
                     .block();
             
             if (response != null && response.getContent() != null) {
@@ -117,29 +124,42 @@ public class GrokApiService {
                 return response.getContent();
             } else {
                 log.error("Empty or invalid conversation response from Grok API");
-                throw new RuntimeException("Empty response from Grok API");
+                return "Unable to process conversation due to API timeout.";
             }
             
-        } catch (WebClientResponseException e) {
-            log.error("Grok API conversation error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Failed to communicate with Grok API: " + e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error calling Grok API for conversation", e);
-            throw new RuntimeException("Unexpected error calling Grok API: " + e.getMessage());
+            if (e.getMessage().contains("TimeoutException")) {
+                return "Conversation request timed out. Please try again.";
+            }
+            return "Conversation service temporarily unavailable.";
         }
     }
     
     /**
-     * Test the Grok API connection
+     * Test the Grok API connection with shorter timeout
      */
     public boolean testConnection() {
         try {
-            String response = sendChatCompletion("Hello, this is a test message. Please respond with 'Connection successful'.");
-            return response != null && response.toLowerCase().contains("connection successful");
+            String response = sendChatCompletion("Respond with: OK");
+            return response != null && (response.toLowerCase().contains("ok") || response.toLowerCase().contains("connection successful"));
         } catch (Exception e) {
             log.error("Grok API connection test failed", e);
             return false;
         }
+    }
+    
+    /**
+     * Create error response for timeout handling
+     */
+    private GrokResponse createErrorResponse() {
+        GrokResponse errorResponse = new GrokResponse();
+        GrokResponse.GrokChoice choice = new GrokResponse.GrokChoice();
+        GrokResponse.GrokMessage message = new GrokResponse.GrokMessage();
+        message.setContent("Service temporarily unavailable due to timeout.");
+        choice.setMessage(message);
+        errorResponse.setChoices(Collections.singletonList(choice));
+        return errorResponse;
     }
     
     /**

@@ -27,14 +27,14 @@ spring:
       hibernate:
         format_sql: true
 
-# Grok API Configuration
+# Grok API Configuration - Increased timeouts for demo
 grok:
   api:
     base-url: https://api.x.ai/v1
     model: grok-4
     temperature: 0.7
     max-tokens: 1000
-    timeout: 30000
+    timeout: 60000
 
 # Logging Configuration
 logging:
