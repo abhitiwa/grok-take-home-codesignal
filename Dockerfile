@@ -1,51 +1,28 @@
-# Multi-stage build for the Grok SDR System
-FROM maven:3.8.6-openjdk-8-slim AS backend-builder
+# Simple single-stage build
+FROM maven:3.8.6-openjdk-11 AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy and build
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# Copy source code and build
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
-# Build frontend
-FROM node:18-alpine AS frontend-builder
+# Runtime stage
+FROM openjdk:11-jre-slim
 
-WORKDIR /app/frontend
-
-# Copy package files
-COPY frontend/package*.json ./
-RUN npm ci --only=production
-
-# Copy source and build
-COPY frontend/ ./
-RUN npm run build
-
-# Final stage
-FROM openjdk:8-jre-alpine
-
-# Install necessary packages
-RUN apk add --no-cache curl
-
-# Create app user
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
+# Install curl and create user
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN useradd -r -s /bin/false appuser
 
 # Set working directory
 WORKDIR /app
 
-# Copy built backend
-COPY --from=backend-builder /app/target/grok-sdr-system-1.0.0.jar app.jar
-
-# Copy built frontend
-COPY --from=frontend-builder /app/build ./static
+# Copy jar
+COPY --from=builder /app/target/grok-sdr-system-1.0.0.jar app.jar
 
 # Create logs directory
-RUN mkdir -p /app/logs && chown -R appuser:appgroup /app
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
@@ -54,8 +31,8 @@ USER appuser
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8080/api/evaluation/health || exit 1
 
-# Run the application
+# Run
 ENTRYPOINT ["java", "-jar", "app.jar"]
