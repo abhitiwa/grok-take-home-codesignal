@@ -181,4 +181,4 @@ temp/
 # Application specific
 data/
 uploads/
-backups/
+backups/.env

@@ -1,10 +1,6 @@
 package com.xai.sdr.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.util.List;
 
@@ -14,10 +10,6 @@ import java.util.List;
  * Contains the generated content and metadata returned
  * from the Grok chat completions endpoint.
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class GrokResponse {
     
     @JsonProperty("id")
@@ -38,10 +30,37 @@ public class GrokResponse {
     @JsonProperty("usage")
     private GrokUsage usage;
     
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
+    public GrokResponse() {}
+    
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    
+    public String getObject() { return object; }
+    public void setObject(String object) { this.object = object; }
+    
+    public Long getCreated() { return created; }
+    public void setCreated(Long created) { this.created = created; }
+    
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
+    
+    public List<GrokChoice> getChoices() { return choices; }
+    public void setChoices(List<GrokChoice> choices) { this.choices = choices; }
+    
+    public GrokUsage getUsage() { return usage; }
+    public void setUsage(GrokUsage usage) { this.usage = usage; }
+    
+    /**
+     * Get the content from the first choice
+     */
+    public String getContent() {
+        if (choices != null && !choices.isEmpty() && choices.get(0).getMessage() != null) {
+            return choices.get(0).getMessage().getContent();
+        }
+        return null;
+    }
+    
     public static class GrokChoice {
         
         @JsonProperty("index")
@@ -52,12 +71,20 @@ public class GrokResponse {
         
         @JsonProperty("finish_reason")
         private String finishReason;
+        
+        public GrokChoice() {}
+        
+        // Getters and Setters
+        public Integer getIndex() { return index; }
+        public void setIndex(Integer index) { this.index = index; }
+        
+        public GrokMessage getMessage() { return message; }
+        public void setMessage(GrokMessage message) { this.message = message; }
+        
+        public String getFinishReason() { return finishReason; }
+        public void setFinishReason(String finishReason) { this.finishReason = finishReason; }
     }
     
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
     public static class GrokMessage {
         
         @JsonProperty("role")
@@ -65,12 +92,17 @@ public class GrokResponse {
         
         @JsonProperty("content")
         private String content;
+        
+        public GrokMessage() {}
+        
+        // Getters and Setters
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+        
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
     }
     
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
     public static class GrokUsage {
         
         @JsonProperty("prompt_tokens")
@@ -81,15 +113,17 @@ public class GrokResponse {
         
         @JsonProperty("total_tokens")
         private Integer totalTokens;
-    }
-    
-    /**
-     * Get the content from the first choice
-     */
-    public String getContent() {
-        if (choices != null && !choices.isEmpty() && choices.get(0).getMessage() != null) {
-            return choices.get(0).getMessage().getContent();
-        }
-        return null;
+        
+        public GrokUsage() {}
+        
+        // Getters and Setters
+        public Integer getPromptTokens() { return promptTokens; }
+        public void setPromptTokens(Integer promptTokens) { this.promptTokens = promptTokens; }
+        
+        public Integer getCompletionTokens() { return completionTokens; }
+        public void setCompletionTokens(Integer completionTokens) { this.completionTokens = completionTokens; }
+        
+        public Integer getTotalTokens() { return totalTokens; }
+        public void setTotalTokens(Integer totalTokens) { this.totalTokens = totalTokens; }
     }
 }

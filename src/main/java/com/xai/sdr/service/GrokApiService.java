@@ -3,7 +3,8 @@ package com.xai.sdr.service;
 import com.xai.sdr.config.GrokApiConfig;
 import com.xai.sdr.dto.GrokRequest;
 import com.xai.sdr.dto.GrokResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,8 +23,9 @@ import java.util.List;
  * including request formatting, error handling, and response processing.
  */
 @Service
-@Slf4j
 public class GrokApiService {
+    
+    private static final Logger log = LoggerFactory.getLogger(GrokApiService.class);
     
     private final GrokApiConfig grokConfig;
     private final WebClient webClient;
